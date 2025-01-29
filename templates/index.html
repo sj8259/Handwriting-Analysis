@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handwriting Style & Spacing Analyzer Tool</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #5f36c3;
+      color: white;
+      padding: 1.5rem;
+      width: 100%;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-bottom: 3px solid #4e28a1;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-10px);
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background-color: #5f36c3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .upload-btn:hover {
+      background-color: #4e28a1;
+      transform: scale(1.05);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      text-align: left;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .result h3 {
+      margin-bottom: 1rem;
+      color: #333;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .small-text {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #6c63ff;
+      font-style: italic;
+    }
+
+    /* Image preview style */
+    #image-preview {
+      margin-top: 1rem;
+      max-width: 100%;
+      height: auto;
+      display: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>Handwriting Style & Spacing Analyzer Tool</header>
+
+  <div class="container">
+    <h2>Upload an Image</h2>
+    <label for="file-upload" class="upload-btn">Choose File</label>
+    <input id="file-upload" type="file" />
+    
+    <!-- Image preview -->
+    <img id="image-preview" src="" alt="Image Preview" />
+    
+    <!-- Results Section -->
+    <div class="result">
+      <h3>Results:</h3>
+      <p id="font-size">Font Size: - cm</p>
+      <p id="word-spacing">Word Spacing: - cm</p>
+      <p id="line-spacing">Line Spacing: - cm</p>
+      <p id="accuracy">Accuracy: - %</p>
+    </div>
+
+    <!-- Additional Message Section -->
+    <p class="small-text">Let your GPT know how much content you need</p>
+  </div>
+
+  <footer>© 2024 Font Analyzer Tool</footer>
+
+  <script>
+    // JavaScript to handle file upload, display image preview and results
+    document.getElementById("file-upload").addEventListener("change", function(event) {
+      let file = event.target.files[0];
+      if (!file) {
+        alert("Please select a file.");
+        return;
+      }
+
+      // Display the image preview
+      const imagePreview = document.getElementById("image-preview");
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";  // Show the image
+      };
+      reader.readAsDataURL(file);
+
+      let formData = new FormData();
+      formData.append("file", file);
+
+      // Send the file to the server using fetch (AJAX)
+      fetch("/upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("font-size").innerText = "Font Size: " + data.font_size_cm + " cm";
+        document.getElementById("word-spacing").innerText = "Word Spacing: " + data.word_spacing_cm + " cm";
+        document.getElementById("line-spacing").innerText = "Line Spacing: " + data.line_spacing_cm + " cm";
+        document.getElementById("accuracy").innerText = "Accuracy: " + data.accuracy_percentage + " %";
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Error uploading file.");
+      });
+    });
+  </script>
+</body>
+</html>
